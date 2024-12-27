@@ -49,6 +49,7 @@ body,
 
 .shift>div>ul {
     list-style-type: none;
+    padding: 0;
 }
 
 .shift h2 {
@@ -135,7 +136,7 @@ nav {
     padding: 0.5rem 0;
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
 
     background-color: #8100d1;
 }
@@ -146,4 +147,29 @@ nav button {
     border-radius: 0.5rem;
     padding: 0.5rem 0.5rem;
     cursor: pointer;
+    position: relative;
+}
+
+nav button:hover {
+    background-color: #666;
+}
+
+#bubble {
+    visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    z-index: 110;
+    top: -1.2rem;
+    right: -1.2rem;
+
+    border-radius: 50%;
+    background-color: #0E6F2B;
+    border: 1px solid #eee;
+    color: #eee;
+    width: 2rem;
+    aspect-ratio: 1;
+
 }

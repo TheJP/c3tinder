@@ -4,6 +4,12 @@ let data = {};
 let filtered_shifts = {};
 let current_shift = {};
 
+const REJECTS_KEY = "rejects";
+const REMEMBERED_KEY = "remembered";
+
+let rejects = JSON.parse(localStorage.getItem(REJECTS_KEY) || "{}");
+let remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "{}");
+
 const swiper = new Swiper('#swiper', {
     initialSlide: 1,
 });
@@ -18,7 +24,7 @@ request.addEventListener("readystatechange", function () {
     const status = this.status;
     if (status >= 200 && status < 400) {
         data = JSON.parse(this.responseText);
-        filtered_shifts = data["shifts"];
+        create_filtered_shifts();
 
         const loading = document.getElementById("loading");
         loading.style["display"] = "none";
@@ -30,6 +36,7 @@ request.addEventListener("readystatechange", function () {
         const remember = document.getElementById("remember");
         remember.addEventListener("click", () => swiper.slideNext(300, true));
 
+        update_and_bounce_bubble();
         show_random_card();
     } else {
         console.log("failed", this.responseText);
@@ -37,9 +44,18 @@ request.addEventListener("readystatechange", function () {
 });
 request.send();
 
+function store_rejects() {
+    localStorage.setItem(REJECTS_KEY, JSON.stringify(rejects));
+}
+
+function store_remembered() {
+    localStorage.setItem(REMEMBERED_KEY, JSON.stringify(remembered));
+}
+
 function show_random_card() {
     const keys = Object.keys(filtered_shifts);
     const selected = keys[Math.floor(Math.random() * keys.length)];
+    filtered_shifts[selected]["id"] = selected;
     show_card(filtered_shifts[selected]);
     delete filtered_shifts[selected];
 }
@@ -52,7 +68,7 @@ function show_card(shift) {
     header.setAttribute("href", shift["link"]);
 
     const time = document.getElementById("shift_time");
-    time.textContent = `${shift["start"]} - ${shift["end"]}`;
+    time.textContent = `${shift["start"]} – ${shift["end"]}`;
 
     const date = document.getElementById("shift_date");
     date.textContent = `${shift["day"]}`;
@@ -66,11 +82,36 @@ function show_card(shift) {
     angel_type.setAttribute("href", shift["angel"]["link"]);
 }
 
+function update_and_bounce_bubble() {
+    const count = Object.keys(remembered).length;
+    const bubble = document.getElementById("bubble");
+    bubble.style["visibility"] = count > 0 ? "visible" : "hidden";
+    bubble.textContent = `${count}`;
+    bubble.animate([
+        { transform: "translateY(0rem)" },
+        { transform: "translateY(-2rem)" },
+        { transform: "translateY(0rem)" },
+    ], {
+        duration: 300,
+        easing: "ease-in-out",
+    })
+}
+
+function create_filtered_shifts() {
+    filtered_shifts = data["shifts"];
+    for (let reject of Object.keys(rejects)) {
+        delete filtered_shifts[reject];
+    }
+}
+
 swiper.on("slideChangeTransitionEnd", () => {
     if (swiper.activeIndex == 0) {
-        // Reject
+        rejects[current_shift["id"]] = true;
+        store_rejects();
     } else if (swiper.activeIndex == 2) {
-        // Accept
+        remembered[current_shift["id"]] = current_shift;
+        store_remembered();
+        update_and_bounce_bubble();
     }
 
     if (swiper.activeIndex != 1) {
