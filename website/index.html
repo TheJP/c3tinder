@@ -12,6 +12,10 @@
 </head>
 
 <body>
+    <nav>
+        <button title="show shifts that were remembered"><img src="icons/cart.svg" /></button>
+        <button title="change settings"><img src="icons/edit-pencil.svg" /></button>
+    </nav>
 
     <h1 id="loading">Loading...</h1>
 
@@ -20,17 +24,23 @@
             <div class="swiper-slide decline">
                 <div>X Skip</div>
             </div>
-            <article id="card" class="swiper-slide">
+            <article id="card" class="swiper-slide shift">
                 <div>
                     <header>
-                        <h2><a id="shift_header" href="#"></a></h2>
+                        <h2><a id="shift_header" href="#" target="_blank"></a></h2>
                     </header>
                     <ul>
-                        <li id="shift_date"></li>
-                        <li><a id="shift_location" href="#"></a></li>
-                        <li><a id="shift_angel_type" href="#"></a></li>
-                        <li><button id="skip">X Skip</button><button id="remember">✓ Remember</button></li>
+                        <li title="Shift Time"><img src="icons/clock.svg" /> <span id="shift_time"></span></li>
+                        <li title="Day (Start)"><img src="icons/calendar.svg" /> <span id="shift_date"></span></li>
+                        <li title="Location"><img src="icons/map.svg" /> <a id="shift_location" href="#"
+                                target="_blank"></a></li>
+                        <li title="Angel Type"><img src="icons/user.svg" /> <a id="shift_angel_type" href="#"
+                                target="_blank"></a></li>
                     </ul>
+                    <footer>
+                        <button id="skip" title="skip this shift"><span>X Skip</span></button>
+                        <button id="remember" title="remember this shift"><span>✓ Remember</span></button>
+                    </footer>
                 </div>
             </article>
             <div class="swiper-slide accept">
