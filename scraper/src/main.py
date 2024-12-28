@@ -1,5 +1,8 @@
 import json
 import os
+from shutil import move
+from time import sleep
+import traceback
 from typing import Tuple
 from bs4 import BeautifulSoup
 import requests
@@ -7,7 +10,8 @@ from datetime import date, datetime, timedelta
 
 
 SESSION_FILE = ".session.private"
-OUTPUT_FILE = "shifts.json"
+OUTPUT_FILE = "website/shifts.json"
+OUTPUT_FILE_TMP = "website/shifts_tmp.json"
 BASE_URL = f"https://engel.events.ccc.de/user-shifts"
 
 
@@ -143,14 +147,24 @@ def get_shifts() -> dict:
 
 
 def write_output(output: dict):
-    with open(OUTPUT_FILE, mode="w", encoding="utf-8") as f:
+    with open(OUTPUT_FILE_TMP, mode="w", encoding="utf-8") as f:
         json.dump(output, f)
 
 
-locations, angel_types = get_types()
-shifts = get_shifts()
-write_output({
-    "shifts": shifts,
-    "locations": locations,
-    "angel_types": angel_types,
-})
+while True:
+    try:
+        locations, angel_types = get_types()
+        shifts = get_shifts()
+        write_output({
+            "shifts": shifts,
+            "locations": locations,
+            "angel_types": angel_types,
+        })
+        move(OUTPUT_FILE_TMP, OUTPUT_FILE)
+    except Exception:
+        traceback.print_exc()
+
+    print()
+    duration = 60 * 15
+    print(f"sleep {duration}s")
+    sleep(duration)

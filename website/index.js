@@ -89,7 +89,7 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 const request = new XMLHttpRequest();
-request.open("GET", "../shifts.json")
+request.open("GET", "shifts.json")
 request.addEventListener("readystatechange", function () {
     if (this.readyState != XMLHttpRequest.DONE) {
         return;
