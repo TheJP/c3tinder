@@ -14,6 +14,80 @@ const swiper = new Swiper('#swiper', {
     initialSlide: 1,
 });
 
+window.addEventListener('DOMContentLoaded', function () {
+    const cart = this.document.getElementById("cart");
+    const close_cart = document.getElementById("close_cart");
+    close_cart.addEventListener("click", () => {
+        const hide_animation = cart.animate([
+            { transform: "translateY(0)" },
+            { transform: "translateY(100%)" },
+        ], {
+            duration: 200
+        });
+        hide_animation.onfinish = () => {
+            cart.style["display"] = "none";
+        }
+    });
+
+    const open_cart = document.getElementById("open_cart");
+    open_cart.addEventListener("click", () => {
+        cart.style["display"] = "grid";
+        cart.animate([
+            { transform: "translateY(100%)" },
+            { transform: "translateY(0)" },
+        ], {
+            duration: 200
+        });
+
+        const cart_content = document.getElementById("cart_content");
+        cart_content.innerHTML = "";
+        for (let key of Object.keys(remembered)) {
+            const shift = remembered[key];
+            const li = document.createElement("li");
+            cart_content.append(li);
+            li.setAttribute("id", `cart_${shift["id"]}`)
+
+            const title = document.createElement("h3");
+            li.append(title);
+            title.classList.add("cart_title");
+            const title_link = document.createElement("a");
+            title.append(title_link)
+            title_link.textContent = shift["name"];
+            title_link.setAttribute("href", shift["link"]);
+            title_link.setAttribute("target", "_blank");
+
+            const trash = document.createElement("button");
+            li.append(trash);
+            trash.classList.add("cart_trash");
+            trash.addEventListener("click", () => remove_shift(shift["id"]));
+
+            const time = document.createElement("p");
+            li.append(time);
+            time.classList.add("cart_time")
+            time.textContent = `${shift["start"]} – ${shift["end"]}`;
+
+            const day = document.createElement("p");
+            li.append(day);
+            day.classList.add("cart_day")
+            day.textContent = shift["day"];
+
+            const location = document.createElement("a");
+            li.append(location);
+            location.classList.add("cart_location");
+            location.textContent = shift["location"]["name"];
+            location.setAttribute("href", shift["location"]["link"]);
+            location.setAttribute("target", "_blank");
+
+            const angel_type = document.createElement("a");
+            li.append(angel_type);
+            angel_type.classList.add("cart_angel");
+            angel_type.textContent = shift["angel"]["name"];
+            angel_type.setAttribute("href", shift["angel"]["link"]);
+            angel_type.setAttribute("target", "_blank");
+        }
+    });
+});
+
 const request = new XMLHttpRequest();
 request.open("GET", "../shifts.json")
 request.addEventListener("readystatechange", function () {
@@ -104,6 +178,14 @@ function create_filtered_shifts() {
     }
 }
 
+function remove_shift(id) {
+    const cart_content = document.getElementById("cart_content");
+    cart_content.removeChild(document.getElementById(`cart_${id}`));
+    delete remembered[id];
+    store_remembered();
+    update_and_bounce_bubble();
+}
+
 swiper.on("slideChangeTransitionEnd", () => {
     if (swiper.activeIndex == 0) {
         rejects[current_shift["id"]] = true;
@@ -123,4 +205,4 @@ swiper.on("slideChangeTransitionEnd", () => {
             swiper.allowTouchMove = true;
         }, 300);
     }
-})
+});

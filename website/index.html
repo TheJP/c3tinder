@@ -13,8 +13,9 @@
 
 <body>
     <nav>
-        <button title="show shifts that were remembered"><img src="icons/cart.svg" /><span id="bubble">0</span></button>
-        <button title="change settings"><img src="icons/edit-pencil.svg" /></button>
+        <button id="open_cart" title="show shifts that were remembered"><img src="icons/cart.svg" /><span
+                id="bubble">0</span></button>
+        <button id="open_settings" title="change settings"><img src="icons/edit-pencil.svg" /></button>
     </nav>
 
     <h1 id="loading">Loading...</h1>
@@ -46,6 +47,15 @@
             <div class="swiper-slide accept">
                 <div>✓ Remember</div>
             </div>
+        </div>
+    </div>
+
+    <div id="cart">
+        <h2>Remembered Shifts</h2>
+        <button id="close_cart" title="close">X</button>
+        <div class="cart_scroll">
+            <ul id="cart_content">
+            </ul>
         </div>
     </div>
 
