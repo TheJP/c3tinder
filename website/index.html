@@ -8,6 +8,7 @@
     <title>c3tinder</title>
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimum-scale=1.0, interactive-widget=resizes-content" />
+    <link rel="icon" href="icons/icon.svg" />
     <link rel="stylesheet" href="normalize.css" />
     <link rel="stylesheet" href="swiper.min.css" />
     <link rel="stylesheet" href="index.css" />
@@ -41,8 +42,8 @@
                                 target="_blank"></a></li>
                     </ul>
                     <footer>
-                        <button id="skip" title="skip this shift"><span>X Skip</span></button>
-                        <button id="remember" title="remember this shift"><span>✓ Remember</span></button>
+                        <button id="skip" title="skip this shift">X Skip</button>
+                        <button id="remember" title="remember this shift">✓ Remember</button>
                     </footer>
                 </div>
             </article>
@@ -52,12 +53,36 @@
         </div>
     </div>
 
-    <div id="cart">
-        <h2>Remembered Shifts</h2>
-        <button id="close_cart" title="close">X</button>
-        <div class="cart_scroll">
+    <div id="cart" class="modal">
+        <h2 class="modal-title">Remembered Shifts</h2>
+        <button class="close-button" title="close">X</button>
+        <div class="modal-scroll">
             <ul id="cart_content">
             </ul>
+        </div>
+    </div>
+
+    <div id="settings" class="modal">
+        <h2 class="modal-title">Filters</h2>
+        <p class="modal-sub-title">Shifts: <span id="filtered_count">?</span></p>
+        <button class="close-button" title="close">X</button>
+        <div class="modal-scroll">
+            <section>
+                <h3>Locations</h3>
+                <div>
+                    <button id="locations_all">All</button>
+                    <button id="locations_none">None</button>
+                </div>
+                <div id="settings_locations" class="settings-checkboxes"></div>
+            </section>
+            <section>
+                <h3>Angel Types</h3>
+                <div>
+                    <button id="angel_all">All</button>
+                    <button id="angel_none">None</button>
+                </div>
+                <div id="settings_angels" class="settings-checkboxes"></div>
+            </section>
         </div>
     </div>
 
