@@ -3,14 +3,18 @@
 let data = {};
 let filtered_shifts = {};
 let current_shift = {};
-let location_filters = {};
-let angel_filters = {};
 
 const REJECTS_KEY = "rejects";
 const REMEMBERED_KEY = "remembered";
+const FILTERS_KEY = "filters"
 
-let rejects = JSON.parse(localStorage.getItem(REJECTS_KEY) || "{}");
-let remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "{}");
+const rejects = JSON.parse(localStorage.getItem(REJECTS_KEY) || "{}");
+const remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "{}");
+const filters = JSON.parse(localStorage.getItem(FILTERS_KEY) || "false") || {
+    // "start": 
+    "locations": {},
+    "angel_types": {},
+};
 
 const swiper = new Swiper('#swiper', {
     initialSlide: 1,
@@ -68,6 +72,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const trash = document.createElement("button");
             li.append(trash);
             trash.classList.add("cart_trash");
+            trash.setAttribute("title", "remove shift from list")
             trash.addEventListener("click", () => remove_shift(shift["id"]));
 
             const time = document.createElement("p");
@@ -105,6 +110,7 @@ window.addEventListener('DOMContentLoaded', () => {
     open_settings.addEventListener("click", () => {
         const settings = document.getElementById("settings");
         open_modal(settings);
+        update_filter_count();
 
         const add_checkboxes = (div, types, filters) => {
             div.innerHTML = "";
@@ -127,7 +133,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
                     filters[key] = checkbox.checked;
-                    create_filtered_shifts();
+                    filters_changed();
                     show_random_card();
                 });
 
@@ -136,10 +142,9 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        add_checkboxes(locations, data["locations"], location_filters);
-        add_checkboxes(angels, data["angel_types"], angel_filters);
+        add_checkboxes(locations, data["locations"], filters["locations"]);
+        add_checkboxes(angels, data["angel_types"], filters["angel_types"]);
     });
-    setTimeout(() => open_settings.click(), 200); // TODO: Remove
 
     const set_all_checkboxes = (div, value, filters) => {
         disable_checkbox_events = true;
@@ -152,19 +157,19 @@ window.addEventListener('DOMContentLoaded', () => {
             filters[key] = value;
         }
 
-        create_filtered_shifts();
+        filters_changed();
         show_random_card();
     };
 
     const locations_all = document.getElementById("locations_all");
-    locations_all.addEventListener("click", () => set_all_checkboxes(locations, true, location_filters));
+    locations_all.addEventListener("click", () => set_all_checkboxes(locations, true, filters["locations"]));
     const locations_none = document.getElementById("locations_none");
-    locations_none.addEventListener("click", () => set_all_checkboxes(locations, false, location_filters));
+    locations_none.addEventListener("click", () => set_all_checkboxes(locations, false, filters["locations"]));
 
     const angel_all = document.getElementById("angel_all");
-    angel_all.addEventListener("click", () => set_all_checkboxes(angels, true, angel_filters));
+    angel_all.addEventListener("click", () => set_all_checkboxes(angels, true, filters["angel_types"]));
     const angel_none = document.getElementById("angel_none");
-    angel_none.addEventListener("click", () => set_all_checkboxes(angels, false, angel_filters));
+    angel_none.addEventListener("click", () => set_all_checkboxes(angels, false, filters["angel_types"]));
 });
 
 const request = new XMLHttpRequest();
@@ -207,10 +212,17 @@ function store_remembered() {
 
 function show_random_card() {
     const keys = Object.keys(filtered_shifts);
+    const shift_data = document.getElementById("shift_data");
+    const no_shift = document.getElementById("no_shift");
     if (keys.length === 0) {
-        // TODO: Show message to user.
-        console.log("there are no shifts remaining for the selected filters");
+        swiper.allowTouchMove = false;
+        shift_data.style["display"] = "none";
+        no_shift.style["display"] = "flex";
         return;
+    } else {
+        swiper.allowTouchMove = true;
+        shift_data.style["display"] = "flex";
+        no_shift.style["display"] = "none";
     }
 
     const selected = keys[Math.floor(Math.random() * keys.length)];
@@ -256,16 +268,30 @@ function update_and_bounce_bubble() {
     })
 }
 
+function filters_changed() {
+    localStorage.setItem(FILTERS_KEY, JSON.stringify(filters));
+    create_filtered_shifts();
+    update_filter_count();
+}
+
+function update_filter_count() {
+    const count = document.getElementById("filtered_count");
+    count.innerText = Object.keys(filtered_shifts).length.toLocaleString();
+}
+
 function create_filtered_shifts() {
     filtered_shifts = { ...data["shifts"] };
     for (let reject of Object.keys(rejects)) {
         delete filtered_shifts[reject];
     }
+    for (let remember of Object.keys(remembered)) {
+        delete filtered_shifts[remember];
+    }
 
     const delete_keys = [];
 
-    for (let location of Object.keys(location_filters)) {
-        if (location_filters[location]) {
+    for (let location of Object.keys(filters["locations"])) {
+        if (filters["locations"][location]) {
             continue;
         }
 
@@ -276,8 +302,8 @@ function create_filtered_shifts() {
         }
     }
 
-    for (let angel of Object.keys(angel_filters)) {
-        if (angel_filters[angel]) {
+    for (let angel of Object.keys(filters["angel_types"])) {
+        if (filters["angel_types"][angel]) {
             continue;
         }
 
@@ -291,10 +317,6 @@ function create_filtered_shifts() {
     for (let shift_key of delete_keys) {
         delete filtered_shifts[shift_key];
     }
-
-    // const count = Object.keys(filtered_shifts).length;
-    const count = document.getElementById("filtered_count");
-    count.innerText = Object.keys(filtered_shifts).length.toLocaleString();
 }
 
 function remove_shift(id) {

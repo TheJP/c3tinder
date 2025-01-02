@@ -18,7 +18,8 @@
     <nav>
         <button id="open_cart" title="show shifts that were remembered"><img src="icons/cart.svg" /><span
                 id="bubble">0</span></button>
-        <button id="open_settings" title="change settings"><img src="icons/edit-pencil.svg" /></button>
+        <button id="open_settings" title="change filters"><img src="icons/edit-pencil.svg" /></button>
+        <button id="open_menu" title="open menu"><img src="icons/menu.svg" /></button>
     </nav>
 
     <h1 id="loading">Loading...</h1>
@@ -29,7 +30,7 @@
                 <div>X Skip</div>
             </div>
             <article id="card" class="swiper-slide shift">
-                <div>
+                <div id="shift_data">
                     <header>
                         <h2><a id="shift_header" href="#" target="_blank"></a></h2>
                     </header>
@@ -45,6 +46,15 @@
                         <button id="skip" title="skip this shift">X Skip</button>
                         <button id="remember" title="remember this shift">✓ Remember</button>
                     </footer>
+                </div>
+                <div id="no_shift">
+                    <header>
+                        <h2>End Reached</h2>
+                    </header>
+                    <ul>
+                        <li>There are no more shifts matching your search.</li>
+                        <li>You might try to adjust filter settings using the button at the bottom.</li>
+                    </ul>
                 </div>
             </article>
             <div class="swiper-slide accept">
@@ -67,6 +77,17 @@
         <p class="modal-sub-title">Shifts: <span id="filtered_count">?</span></p>
         <button class="close-button" title="close">X</button>
         <div class="modal-scroll">
+            <section class="settings-date">
+                <h3>Date / Time</h3>
+                <ul>
+                    <li>
+                        <label for="settings_start">Start</label> <input type="datetime-local" id="settings_start" />
+                    </li>
+                    <li>
+                        <label for="settings_end">End</label> <input type="datetime-local" id="settings_end" />
+                    </li>
+                </ul>
+            </section>
             <section>
                 <h3>Locations</h3>
                 <div>
