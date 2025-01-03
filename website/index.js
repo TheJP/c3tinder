@@ -4,17 +4,36 @@ let data = {};
 let filtered_shifts = {};
 let current_shift = {};
 
+const EVENT = "38c3";
+const EVENT_KEY = "event";
 const REJECTS_KEY = "rejects";
 const REMEMBERED_KEY = "remembered";
-const FILTERS_KEY = "filters"
+const FILTERS_KEY = "filters";
+const EPOCH_DATE = "1970-01-01";
 
-const rejects = JSON.parse(localStorage.getItem(REJECTS_KEY) || "{}");
-const remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "{}");
-const filters = JSON.parse(localStorage.getItem(FILTERS_KEY) || "false") || {
-    // "start": 
+let rejects = JSON.parse(localStorage.getItem(REJECTS_KEY) || "{}");
+let remembered = JSON.parse(localStorage.getItem(REMEMBERED_KEY) || "{}");
+const default_filters = {
+    "start": { "date": "", "time": "" },
+    "end": { "date": "", "time": "" },
     "locations": {},
     "angel_types": {},
+    "layout": "v1.0",
 };
+let filters = JSON.parse(localStorage.getItem(FILTERS_KEY) || "false") || default_filters;
+if (filters["layout"] !== default_filters["layout"]) {
+    filters = default_filters;
+}
+
+if (localStorage.getItem(EVENT_KEY) !== EVENT) {
+    rejects = {};
+    remembered = {};
+    filters = default_filters;
+    store_rejects();
+    store_remembered();
+    filters_changed();
+    localStorage.setItem(EVENT_KEY, EVENT);
+}
 
 const swiper = new Swiper('#swiper', {
     initialSlide: 1,
@@ -108,6 +127,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const open_settings = document.getElementById("open_settings");
     open_settings.addEventListener("click", () => {
+        if (Object.keys(data).length === 0) {
+            console.log("need to wait for data before filters can be changed");
+            return;
+        }
+
         const settings = document.getElementById("settings");
         open_modal(settings);
         update_filter_count();
@@ -145,6 +169,21 @@ window.addEventListener('DOMContentLoaded', () => {
         add_checkboxes(locations, data["locations"], filters["locations"]);
         add_checkboxes(angels, data["angel_types"], filters["angel_types"]);
     });
+
+    const settings_setup_datetime = (id_prefix, datetime) => {
+        for (let suffix of ["date", "time"]) {
+            const input = document.getElementById(`${id_prefix}_${suffix}`);
+            input.value = datetime[suffix];
+
+            input.addEventListener("change", () => {
+                datetime[suffix] = input.value;
+                filters_changed();
+                show_random_card();
+            });
+        }
+    };
+    settings_setup_datetime("settings_start", filters["start"]);
+    settings_setup_datetime("settings_end", filters["end"]);
 
     const set_all_checkboxes = (div, value, filters) => {
         disable_checkbox_events = true;
@@ -289,6 +328,58 @@ function create_filtered_shifts() {
     }
 
     const delete_keys = [];
+
+    if (filters["start"]["date"] !== "") {
+        const date_string = filters["start"]["date"] +
+            (filters["start"]["time"] === "" ? "T00:00" : `T${filters["start"]["time"]}`);
+        const start_date = new Date(date_string);
+
+        for (let shift_key of Object.keys(filtered_shifts)) {
+            const shift = filtered_shifts[shift_key];
+            const shift_date = new Date(`${shift["day"]}T${shift["start"]}`);
+            if (shift_date < start_date) {
+                delete_keys.push(shift_key);
+            }
+        }
+    } else if (filters["start"]["time"] !== "") {
+        const start_time = new Date(`${EPOCH_DATE}T${filters["start"]["time"]}`);
+        for (let shift_key of Object.keys(filtered_shifts)) {
+            const shift_time = new Date(`${EPOCH_DATE}T${filtered_shifts[shift_key]["start"]}`);
+            if (shift_time < start_time) {
+                delete_keys.push(shift_key);
+            }
+        }
+    }
+
+    if (filters["end"]["date"] !== "") {
+        const date_string = filters["end"]["date"] +
+            (filters["end"]["time"] === "" ? "T23:59:59" : `T${filters["end"]["time"]}`);
+        const end_date = new Date(date_string);
+
+        for (let shift_key of Object.keys(filtered_shifts)) {
+            const shift = filtered_shifts[shift_key];
+            const shift_start = new Date(`${shift["day"]}T${shift["start"]}`);
+            const shift_end = new Date(`${shift["day"]}T${shift["end"]}`);
+            if (shift_end < shift_start) {
+                // End time is past midnight.
+                shift_end.setDate(shift_end.getDate() + 1);
+            }
+
+            if (shift_end > end_date) {
+                delete_keys.push(shift_key);
+            }
+        }
+    } else if (filters["end"]["time"] !== "") {
+        const end_time = new Date(`${EPOCH_DATE}T${filters["end"]["time"]}`);
+        for (let shift_key of Object.keys(filtered_shifts)) {
+            // Intentionally filtering against shift start time here,
+            // because end time would be unintuitive with past midnight times.
+            const shift_time = new Date(`${EPOCH_DATE}T${filtered_shifts[shift_key]["start"]}`);
+            if (shift_time > end_time) {
+                delete_keys.push(shift_key);
+            }
+        }
+    }
 
     for (let location of Object.keys(filters["locations"])) {
         if (filters["locations"][location]) {
