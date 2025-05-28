@@ -4,7 +4,7 @@ let data = {};
 let filtered_shifts = {};
 let current_shift = {};
 
-const EVENT = "38c3";
+const EVENT = "GPN23";
 const EVENT_KEY = "event";
 const REJECTS_KEY = "rejects";
 const REMEMBERED_KEY = "remembered";

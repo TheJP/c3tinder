@@ -12,7 +12,10 @@ from datetime import date, datetime, timedelta
 SESSION_FILE = ".session.private"
 OUTPUT_FILE = "website/shifts.json"
 OUTPUT_FILE_TMP = "website/shifts_tmp.json"
-BASE_URL = f"https://engel.events.ccc.de/user-shifts"
+BASE_URL = f"https://troll.gulas.ch/user-shifts"
+
+DATE_START = date(2025, 6, 18)
+DATE_END = date(2025, 6, 22)
 
 
 # Session
@@ -72,7 +75,7 @@ def get_shifts() -> dict:
 
     shifts = {}
 
-    day = date.today()
+    day = max(date.today(), DATE_START)
     params = {
         "start_day": day.strftime("%Y-%m-%d"),
         "search_terms": "",
@@ -90,7 +93,7 @@ def get_shifts() -> dict:
     for id in angel_types.keys():
         params["types[]"].append(id)
 
-    while day <= date(2024, 12, 31):
+    while day <= DATE_END:
         response = fetch(BASE_URL, params)
         bs = BeautifulSoup(response.content, "lxml")
 
