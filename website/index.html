@@ -45,8 +45,8 @@
                                 target="_blank"></a></li>
                     </ul>
                     <footer>
-                        <button id="skip" title="skip this shift">X Skip</button>
-                        <button id="remember" title="remember this shift">✓ Remember</button>
+                        <button id="skip" title="skip this shift" class="button-red">X Skip</button>
+                        <button id="remember" title="remember this shift" class="button-green">✓ Remember</button>
                     </footer>
                 </div>
                 <div id="no_shift">
@@ -110,6 +110,14 @@
                 </div>
                 <div id="settings_angels" class="settings-checkboxes"></div>
             </section>
+        </div>
+    </div>
+
+    <div id="menu" class="modal">
+        <h2 class="modal-title">Settings</h2>
+        <button class="close-button" title="close">X</button>
+        <div class="modal-scroll">
+            <button id="clear_storage" class="button-red button-trash" title="remove all remembered and skipped shifts">Clear Storage</button>
         </div>
     </div>
 

@@ -25,7 +25,7 @@ if (filters["layout"] !== default_filters["layout"]) {
     filters = default_filters;
 }
 
-if (localStorage.getItem(EVENT_KEY) !== EVENT) {
+function clear_local_storage() {
     rejects = {};
     remembered = {};
     filters = default_filters;
@@ -33,6 +33,10 @@ if (localStorage.getItem(EVENT_KEY) !== EVENT) {
     store_remembered();
     filters_changed();
     localStorage.setItem(EVENT_KEY, EVENT);
+}
+
+if (localStorage.getItem(EVENT_KEY) !== EVENT) {
+    clear_local_storage();
 }
 
 const swiper = new Swiper('#swiper', {
@@ -66,6 +70,23 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Menu
+    const open_menu = document.getElementById("open_menu");
+    open_menu.addEventListener("click", () => {
+        const menu = this.document.getElementById("menu");
+        open_modal(menu);
+    });
+
+    const clear_storage = document.getElementById("clear_storage");
+    clear_storage.addEventListener("click", () => {
+        if (confirm("Do you want to clear the local storage? This will remove all your remembered and skipped shifts.")) {
+            clear_local_storage();
+            location.reload();
+            return false;
+        }
+    });
+
+    // Cart
     const open_cart = document.getElementById("open_cart");
     open_cart.addEventListener("click", () => {
         const cart = this.document.getElementById("cart");
